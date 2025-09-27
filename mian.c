@@ -2,10 +2,61 @@
 
 #include <unistd.h>
 
-#include <stdio.h>
 
 int printChar(char c){
     return write(1, &c, 1) == 1 ? 0 : -1;
+}
+
+void hexadecimalUpp(unsigned int val){
+    char buf[32];
+    int i = 0;
+    unsigned int cur;
+    if(val == 0){
+        if(printChar('0') == -1)
+            write(1, "Error.", 6);
+        return;
+    }
+    while(val > 0 && i < 31){
+        cur = val % 16;
+        if(cur >= 10){
+            buf[i++] = 'A' + (cur - 10);
+        }else{
+            buf[i++] = '0' + cur;
+        }
+        val /= 16;
+    }
+    while(i > 0){
+        if(printChar(buf[--i]) == -1){
+            write(1, "Error.", 6);
+            return;
+        }
+    }
+}
+
+void hexadecimalLow(unsigned int val){
+    char buf[32];
+    int i = 0;
+    unsigned int cur;
+    if(val == 0){
+        if(printChar('0') == -1)
+            write(1, "Error.", 6);
+        return;
+    }
+    while(val > 0 && i < 31){
+        cur = val % 16;
+        if(cur >= 10){
+            buf[i++] = 'a' + (cur - 10);
+        }else{
+            buf[i++] = '0' + cur;
+        }
+        val /= 16;
+    }
+    while(i > 0){
+        if(printChar(buf[--i]) == -1){
+            write(1, "Error.", 6);
+            return;
+        }
+    }
 }
 
 void printUintTen(unsigned int val){
@@ -76,7 +127,7 @@ void myPrint(const char* initial, ...){
         if(*p == '%' && *(p+1) != '\0'){
             p++;
             if(*p == 'u'){
-                unsigned int val =va_arg(ap,unsigned int);
+                unsigned int val = va_arg(ap,unsigned int);
                 printUintTen(val);
             }else if(*p == 'd'){
                 int val = va_arg(ap, int);
@@ -87,7 +138,14 @@ void myPrint(const char* initial, ...){
             }else if(*p == 's'){
                 char* valS = va_arg(ap, char*);
                 printStr(valS);
-            }else{
+            }else if(*p == 'X'){
+                unsigned int val = va_arg(ap, unsigned int);
+                hexadecimalUpp(val);
+            }else if(*p == 'x'){
+                unsigned int val = va_arg(ap, unsigned int);
+                hexadecimalLow(val);
+            }
+            else{
                 printChar(*p);
             }
         }
@@ -105,8 +163,8 @@ int main(void){
     myPrint("%u\n", num);
     unsigned int numU = (unsigned int)num;
     myPrint("%u\n", numU);
-    printf("%u\n", num);
-    printf("%u\n", numU);
+    unsigned int numHex = 0xfa;
+    myPrint("%X\n", numHex);
 
     return 0;
 }
